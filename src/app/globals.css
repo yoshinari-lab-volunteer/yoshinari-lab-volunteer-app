@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  /* ブランドカラー（teal 系）。変えたい場合はこの11行だけ差し替えれば全体に反映されます */
+  --color-brand-50:  #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  --font-sans: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP",
+    Meiryo, system-ui, sans-serif;
+}
+
+/*
+ * クライアント（非エンジニア）が運用する前提のため、ダークモードは採用していません。
+ * 配色パターンが2倍になり、管理画面のスクリーンショット共有や印刷で混乱するためです。
+ */
+html {
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-slate-50);
+  color: var(--color-slate-900);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+}
+
+/* キーボード操作時のフォーカスリングを全体で統一 */
+:focus-visible {
+  outline: 2px solid var(--color-brand-600);
+  outline-offset: 2px;
+}
