@@ -7,7 +7,7 @@ const CONTROL_BASE =
   'disabled:bg-slate-50 disabled:text-slate-500 ' +
   'aria-[invalid=true]:border-rose-400 aria-[invalid=true]:focus:ring-rose-500/20';
 
-export function Input({ className, ...props }: React.ComponentProps<'input'>) {
+export function Input({ className, ...props }: React.ComponentPropsWithRef<'input'>) {
   return <input className={cn(CONTROL_BASE, className)} {...props} />;
 }
 

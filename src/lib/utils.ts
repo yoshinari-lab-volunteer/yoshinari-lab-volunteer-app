@@ -28,30 +28,48 @@ export function isDeadlinePassed(deadline: string) {
   return isPast(new Date(deadline));
 }
 
+/**
+ * このアプリは日本国内のみを対象とするため、datetime-local の入力値は常に
+ * 日本時間（UTC+9固定。夏時間なし）として解釈・表示する。
+ *
+ * <input type="datetime-local"> の値はブラウザの実行環境のタイムゾーンで
+ * 表示・解釈される一方、Server Action はサーバーの実行環境のタイムゾーンで
+ * 同じ文字列を解釈する。Vercel 等サーバーが UTC で動作する環境では、
+ * 「ブラウザ（JST）で表示・入力した時刻」と「サーバー（UTC）が保存する時刻」が
+ * 9時間ずれてしまうため、両方をこの固定オフセットの変換関数に統一している。
+ */
+const JST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** 'YYYY-MM-DDTHH:mm'（日本時間として入力された文字列）→ Date */
+export function parseJstDatetimeLocal(value: string): Date {
+  return new Date(Date.parse(`${value}:00.000Z`) - JST_OFFSET_MS);
+}
+
+/** ISO文字列 → <input type="datetime-local"> 用の 'YYYY-MM-DDTHH:mm'（日本時間で表示） */
+export function toDatetimeLocalValue(value: string) {
+  const d = new Date(new Date(value).getTime() + JST_OFFSET_MS);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
+}
+
+/** 活動の終了時刻を過ぎているか（終了時刻未設定の場合は開催日の23:59を終了とみなす） */
+export function hasVolunteerEnded(v: { eventDate: string; endTime: string | null }): boolean {
+  const time = v.endTime ?? '23:59';
+  return isPast(new Date(`${v.eventDate}T${time}:00`));
+}
+
 /** 応募できる状態か */
 export function canApply(v: {
   status: string;
   deadline: string;
-  current_applicants: number;
-  max_capacity: number;
+  currentApplicants: number;
+  maxCapacity: number;
 }) {
   return (
     v.status === 'published' &&
     !isDeadlinePassed(v.deadline) &&
-    v.current_applicants < v.max_capacity
+    v.currentApplicants < v.maxCapacity
   );
-}
-
-/** Postgres の raise exception メッセージをそのままユーザーに見せる */
-export function toErrorMessage(error: unknown, fallback = '処理に失敗しました'): string {
-  if (!error) return fallback;
-  if (typeof error === 'string') return error;
-  if (typeof error === 'object' && 'message' in error) {
-    const msg = String((error as { message: unknown }).message);
-    // Supabase が付ける接頭辞を落とす
-    return msg.replace(/^.*?violates row-level security.*$/i, '権限がありません') || fallback;
-  }
-  return fallback;
 }
 
 /** CSV 用のセルエスケープ。先頭記号は数式インジェクション対策で無害化する */

@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// このアプリでは Firestore に直接アクセスするのは Next.js サーバー側の
+// firebase-admin（セキュリティルールを無視する）のみで、ブラウザの Firebase SDK は
+// Authentication（ログイン・新規登録・パスワード再設定）にしか使わない方針。
+//
+// 定員チェック・ステータス遷移・ポイント付与といった業務ロジックは
+// Firestore のセキュリティルールだけでは安全に（競合なく）表現できないため、
+// すべて Next.js の Server Action（Firestore トランザクション）側で検証している。
+//
+// そのため、クライアントSDKからの直接アクセスは一律で拒否する。
+// 誤って緩いルールを書いてしまうリスクそのものをなくすための、意図的な全拒否設定。
+// 詳細は docs/FIREBASE_SETUP.md の「アーキテクチャ方針」を参照。
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { HeartHandshake, LayoutDashboard, LogIn, UserRound } from 'lucide-react';
 import { getCurrentProfile } from '@/lib/auth';
-import { SITE_NAME } from '@/lib/constants';
+import { getSiteSettings } from '@/lib/firebase/queries';
 import { SignOutButton } from '@/components/layout/sign-out-button';
 
 export async function Header() {
-  const profile = await getCurrentProfile();
+  const [profile, settings] = await Promise.all([getCurrentProfile(), getSiteSettings()]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -15,7 +15,7 @@ export async function Header() {
           className="flex items-center gap-2 font-bold text-slate-900 hover:text-brand-700"
         >
           <HeartHandshake className="size-6 text-brand-600" aria-hidden />
-          <span className="text-lg">{SITE_NAME}</span>
+          <span className="text-lg">{settings.siteName}</span>
         </Link>
 
         <nav className="flex items-center gap-1 text-sm">

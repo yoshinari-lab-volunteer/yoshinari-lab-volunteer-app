@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { APPLICATION_STATUS, VOLUNTEER_STATUS } from '@/lib/constants';
-import type { ApplicationStatus, VolunteerStatus } from '@/types/database.types';
+import type { ApplicationStatus, VolunteerStatus } from '@/types/firestore';
 
 export function Badge({
   className,

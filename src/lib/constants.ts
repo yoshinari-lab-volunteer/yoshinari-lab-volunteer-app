@@ -1,4 +1,4 @@
-import type { ApplicationStatus, VolunteerStatus } from '@/types/database.types';
+import type { ApplicationStatus, SiteSettings, VolunteerStatus } from '@/types/firestore';
 
 /** 案件の分野。クライアントが増やしたくなったらここに追記するだけ */
 export const CATEGORIES = [
@@ -47,6 +47,11 @@ export const APPLICATION_STATUS: Record<ApplicationStatus, StatusMeta> = {
     hint: '活動が終わったら「活動を終了した」を押してください',
     className: 'bg-sky-100 text-sky-800 ring-sky-200',
   },
+  cancellation_requested: {
+    label: '取消承認待ち',
+    hint: '管理者の承認後に取消が確定します',
+    className: 'bg-orange-100 text-orange-800 ring-orange-200',
+  },
   completion_requested: {
     label: '完了承認待ち',
     hint: '管理者の最終承認後にポイントが付与されます',
@@ -70,7 +75,7 @@ export const APPLICATION_STATUS: Record<ApplicationStatus, StatusMeta> = {
 };
 
 export const VOLUNTEER_STATUS: Record<VolunteerStatus, { label: string; className: string }> = {
-  draft: { label: '下書き', className: 'bg-slate-100 text-slate-600 ring-slate-200' },
+  draft: { label: '非公開（下書き）', className: 'bg-slate-100 text-slate-600 ring-slate-200' },
   published: { label: '公開中', className: 'bg-teal-100 text-teal-800 ring-teal-200' },
   closed: { label: '募集終了', className: 'bg-slate-200 text-slate-700 ring-slate-300' },
 };
@@ -81,4 +86,17 @@ export const CONTACT_EMAIL =
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
-export const SITE_NAME = 'ボランティアひろば';
+/**
+ * サイト名・見出し・説明文の初期値。
+ * 実際の表示値は Firestore の settings/site ドキュメント（管理者が /admin/settings から編集）を
+ * 優先し、ドキュメントが存在しない・一部フィールドが空の場合にこの値へフォールバックする。
+ * （src/lib/firebase/queries.ts の getSiteSettings 参照）
+ */
+export const DEFAULT_SITE_SETTINGS: SiteSettings = {
+  siteName: 'ボランティアひろば',
+  tagline: '地域・日付・分野からボランティア活動を探して応募できます。活動を終えるとポイントが貯まります。',
+  homeHeroTitle: 'やってみたい活動が、きっと見つかる。',
+  homeHeroDescription: '地域のボランティア活動を探して応募できます。活動を終えるとポイントが貯まります。',
+  footerDescription: '退会をご希望の場合、およびご不明な点は管理者までお問い合わせください。',
+  contactEmail: CONTACT_EMAIL,
+};
