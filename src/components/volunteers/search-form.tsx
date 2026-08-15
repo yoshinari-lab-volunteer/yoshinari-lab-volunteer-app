@@ -1,13 +1,13 @@
 'use client';
 
-import { AREAS, CATEGORIES } from '@/lib/constants';
+import { AREAS } from '@/lib/constants';
 import { Select, Input } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 
 export function VolunteerSearchForm({
   defaultValues,
 }: {
-  defaultValues: { area?: string; category?: string; date?: string };
+  defaultValues: { area?: string; dateFrom?: string; dateTo?: string };
 }) {
   return (
     <form
@@ -27,20 +27,13 @@ export function VolunteerSearchForm({
       </label>
 
       <label className="space-y-1.5 text-sm">
-        <span className="block font-semibold text-slate-800">分野</span>
-        <Select name="category" defaultValue={defaultValues.category ?? ''}>
-          <option value="">すべての分野</option>
-          {CATEGORIES.map((category) => (
-            <option key={category} value={category}>
-              {category}
-            </option>
-          ))}
-        </Select>
+        <span className="block font-semibold text-slate-800">開催日（以降）</span>
+        <Input type="date" name="dateFrom" defaultValue={defaultValues.dateFrom ?? ''} />
       </label>
 
       <label className="space-y-1.5 text-sm">
-        <span className="block font-semibold text-slate-800">開催日</span>
-        <Input type="date" name="date" defaultValue={defaultValues.date ?? ''} />
+        <span className="block font-semibold text-slate-800">開催日（以前）</span>
+        <Input type="date" name="dateTo" defaultValue={defaultValues.dateTo ?? ''} />
       </label>
 
       <Button type="submit" className="w-full sm:w-auto">

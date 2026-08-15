@@ -12,13 +12,13 @@ export async function Header() {
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-4 px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold text-slate-900 hover:text-brand-700"
+          className="flex min-w-0 items-center gap-2 font-bold text-slate-900 hover:text-brand-700"
         >
-          <HeartHandshake className="size-6 text-brand-600" aria-hidden />
-          <span className="text-lg">{settings.siteName}</span>
+          <HeartHandshake className="size-6 shrink-0 text-brand-600" aria-hidden />
+          <span className="truncate text-lg">{settings.siteName}</span>
         </Link>
 
-        <nav className="flex items-center gap-1 text-sm">
+        <nav className="flex shrink-0 items-center gap-1 whitespace-nowrap text-sm">
           {profile ? (
             <>
               {profile.role === 'admin' && (

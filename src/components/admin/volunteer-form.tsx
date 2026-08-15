@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from 'react';
 import { ImagePlus, X } from 'lucide-react';
 import { toDatetimeLocalValue } from '@/lib/utils';
+import { AREAS } from '@/lib/constants';
 import { Field, Input, Select, Textarea, Label } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
@@ -96,7 +97,16 @@ export function VolunteerForm({
         </Field>
 
         <Field label="地域" htmlFor="area" required>
-          <Input id="area" name="area" defaultValue={volunteer?.area} required maxLength={50} />
+          <Select id="area" name="area" defaultValue={volunteer?.area ?? ''} required>
+            <option value="" disabled>
+              選択してください
+            </option>
+            {AREAS.map((area) => (
+              <option key={area} value={area}>
+                {area}
+              </option>
+            ))}
+          </Select>
         </Field>
 
         <Field label="開催日" htmlFor="eventDate" required>

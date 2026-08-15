@@ -26,9 +26,10 @@ import type {
 
 export type VolunteerFilter = {
   area?: string;
-  category?: string;
-  /** 'YYYY-MM-DD' */
-  date?: string;
+  /** 'YYYY-MM-DD'。この日以降 */
+  dateFrom?: string;
+  /** 'YYYY-MM-DD'。この日以前 */
+  dateTo?: string;
 };
 
 /** 一般ユーザー向けの案件一覧（下書きは含まない） */
@@ -38,14 +39,17 @@ export async function listVolunteers(filter: VolunteerFilter = {}): Promise<Volu
     .where('status', 'in', ['published', 'closed']);
 
   if (filter.area) query = query.where('area', '==', filter.area);
-  if (filter.category) query = query.where('category', '==', filter.category);
   query = query.orderBy('eventDate', 'asc');
 
   const snap = await query.get();
   const volunteers = snap.docs.map(mapVolunteer);
 
   // 日付の絞り込みは件数が少ない前提でアプリ側で行う（複合インデックスを増やさないため）
-  return filter.date ? volunteers.filter((v) => v.eventDate === filter.date) : volunteers;
+  return volunteers.filter((v) => {
+    if (filter.dateFrom && v.eventDate < filter.dateFrom) return false;
+    if (filter.dateTo && v.eventDate > filter.dateTo) return false;
+    return true;
+  });
 }
 
 /**
