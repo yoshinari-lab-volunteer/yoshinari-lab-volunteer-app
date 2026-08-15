@@ -52,10 +52,14 @@ export function toDatetimeLocalValue(value: string) {
   return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}`;
 }
 
-/** 活動の終了時刻を過ぎているか（終了時刻未設定の場合は開催日の23:59を終了とみなす） */
+/**
+ * 活動の終了時刻を過ぎているか（終了時刻未設定の場合は開催日の23:59を終了とみなす）。
+ * eventDate/endTime も日本時間として入力された値のため、deadline と同様に
+ * parseJstDatetimeLocal でタイムゾーンを固定して解釈する（ブラウザ/サーバー間のズレ防止）。
+ */
 export function hasVolunteerEnded(v: { eventDate: string; endTime: string | null }): boolean {
   const time = v.endTime ?? '23:59';
-  return isPast(new Date(`${v.eventDate}T${time}:00`));
+  return isPast(parseJstDatetimeLocal(`${v.eventDate}T${time}`));
 }
 
 /** 応募できる状態か */
