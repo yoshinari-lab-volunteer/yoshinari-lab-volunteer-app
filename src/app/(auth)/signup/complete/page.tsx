@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MailCheck, AlertCircle } from 'lucide-react';
+import { MailCheck } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
@@ -14,12 +14,12 @@ export default function SignupCompletePage() {
           ご入力いただいたメールアドレスに確認メールをお送りしました。
           メール内のリンクをクリックして、登録を完了してください。
         </p>
-        <Alert tone="info" className="flex items-start gap-3 bg-blue-50 text-left">
-          <AlertCircle className="size-5 shrink-0 text-blue-600 mt-0.5" aria-hidden />
-          <div className="text-sm">
-            <strong className="text-blue-900">メールが届かない場合</strong>
-            <p className="text-blue-800 mt-1">迷惑メール・スパムフォルダをご確認ください。それでも見つからない場合は、管理者までお問い合わせください。</p>
-          </div>
+        <Alert
+          tone="info"
+          title="メールが届かない場合"
+          className="w-full text-left"
+        >
+          <p>迷惑メール・スパムフォルダをご確認ください。それでも見つからない場合は、管理者までお問い合わせください。</p>
         </Alert>
         <Link href="/login">
           <Button variant="outline">ログイン画面へ</Button>
