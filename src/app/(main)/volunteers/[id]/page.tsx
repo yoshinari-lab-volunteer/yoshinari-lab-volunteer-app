@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CalendarDays, Clock, MapPin, Users } from 'lucide-react';
 import { getVolunteer, getMyApplication } from '@/lib/firebase/queries';
+import { recordVolunteerView } from '@/lib/firebase/tracking';
 import { getCurrentProfile } from '@/lib/auth';
 import { Card, CardBody } from '@/components/ui/card';
 import { BeginnerBadge, PointsBadge, VolunteerStatusBadge } from '@/components/ui/badge';
@@ -23,6 +24,8 @@ export default async function VolunteerDetailPage({ params }: Props) {
   const [volunteer, profile] = await Promise.all([getVolunteer(id), getCurrentProfile()]);
   if (!volunteer) notFound();
   if (volunteer.status === 'draft' && profile?.role !== 'admin') notFound();
+
+  if (volunteer.status !== 'draft') await recordVolunteerView(id);
 
   const myApplication = profile ? await getMyApplication(id, profile.id) : null;
 

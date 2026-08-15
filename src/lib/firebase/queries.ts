@@ -113,6 +113,28 @@ export async function getAdminDashboardStats() {
   };
 }
 
+/**
+ * 管理者向けのアクセス状況。
+ * サイト全体の累計ページビューと、案件ごとの累計閲覧数（多い順）を返す。
+ */
+export async function getSiteAnalytics(): Promise<{
+  pageViews: number;
+  volunteers: Volunteer[];
+}> {
+  const db = adminDb();
+  const [overviewSnap, volunteersSnap] = await Promise.all([
+    db.collection('siteStats').doc('overview').get(),
+    db.collection('volunteers').get(),
+  ]);
+
+  const pageViews: number = overviewSnap.exists ? (overviewSnap.data()!.pageViews ?? 0) : 0;
+  const volunteers = volunteersSnap.docs
+    .map(mapVolunteer)
+    .sort((a, b) => b.viewCount - a.viewCount);
+
+  return { pageViews, volunteers };
+}
+
 /** ログインユーザー自身の応募履歴（案件情報つき、新しい順） */
 export async function listMyApplications(userId: string): Promise<ApplicationWithVolunteer[]> {
   const db = adminDb();

@@ -55,6 +55,7 @@ export function mapVolunteer(doc: Doc): Volunteer {
     points: d.points ?? 0,
     maxCapacity: d.maxCapacity ?? 0,
     currentApplicants: d.currentApplicants ?? 0,
+    viewCount: d.viewCount ?? 0,
     deadline: toIso(d.deadline),
     beginnerFriendly: d.beginnerFriendly ?? false,
     status: d.status ?? 'draft',
@@ -88,6 +89,8 @@ export function mapApplication(doc: Doc): Application {
     awardedPoints: d.awardedPoints ?? null,
     celebratedAt: toIsoOrNull(d.celebratedAt),
     adminNote: d.adminNote ?? null,
+    surveyComment: d.surveyComment ?? null,
+    surveySubmittedAt: toIsoOrNull(d.surveySubmittedAt),
     createdAt: toIso(d.createdAt),
     updatedAt: toIso(d.updatedAt),
   };

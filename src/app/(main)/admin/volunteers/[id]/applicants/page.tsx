@@ -49,6 +49,14 @@ export default async function VolunteerApplicantsPage({
                   <p className="text-xs text-slate-400">
                     応募日時: {formatDateTime(application.appliedAt)}
                   </p>
+                  {application.surveyComment && (
+                    <div className="mt-1 max-w-md rounded-lg border border-slate-200 bg-slate-50 p-2.5">
+                      <p className="text-xs font-semibold text-slate-500">アンケート回答</p>
+                      <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-700">
+                        {application.surveyComment}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <ApplicantActions

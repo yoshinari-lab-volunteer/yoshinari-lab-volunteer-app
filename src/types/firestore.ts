@@ -55,6 +55,8 @@ export type Volunteer = {
   points: number;
   maxCapacity: number;
   currentApplicants: number;
+  /** 案件詳細ページの累計閲覧数（管理者のみ確認可能） */
+  viewCount: number;
   deadline: string;
   beginnerFriendly: boolean;
   status: VolunteerStatus;
@@ -85,6 +87,9 @@ export type Application = {
   awardedPoints: number | null;
   celebratedAt: string | null;
   adminNote: string | null;
+  /** 活動完了後にユーザーが入力する感想アンケート */
+  surveyComment: string | null;
+  surveySubmittedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

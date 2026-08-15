@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ClipboardCheck, LayoutDashboard, ListChecks, Settings, Users } from 'lucide-react';
+import { BarChart3, ClipboardCheck, LayoutDashboard, ListChecks, Settings, Users } from 'lucide-react';
 import { requireAdmin } from '@/lib/auth';
 
 const NAV_LINK_CLASS =
@@ -26,6 +26,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <Link href="/admin/users" className={NAV_LINK_CLASS}>
           <Users className="size-4" aria-hidden />
           ユーザー管理
+        </Link>
+        <Link href="/admin/analytics" className={NAV_LINK_CLASS}>
+          <BarChart3 className="size-4" aria-hidden />
+          アクセス状況
         </Link>
         <Link href="/admin/settings" className={NAV_LINK_CLASS}>
           <Settings className="size-4" aria-hidden />

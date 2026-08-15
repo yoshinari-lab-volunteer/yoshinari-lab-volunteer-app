@@ -67,6 +67,8 @@ export async function applyToVolunteer(volunteerId: string): Promise<ActionResul
         awardedPoints: null,
         celebratedAt: null,
         adminNote: null,
+        surveyComment: null,
+        surveySubmittedAt: null,
         createdAt: existing?.createdAt ?? FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -221,6 +223,44 @@ export async function requestCompletion(volunteerId: string): Promise<ActionResu
     });
   } catch (err) {
     return { error: err instanceof Error ? err.message : '完了報告に失敗しました' };
+  }
+
+  revalidatePath('/mypage');
+  return {};
+}
+
+const MAX_SURVEY_LENGTH = 1000;
+
+/** 活動完了後のアンケート（感想）を送信・編集する */
+export async function submitSurvey(applicationId: string, comment: string): Promise<ActionResult> {
+  const profile = await requireProfile();
+  const trimmed = comment.trim();
+
+  if (!trimmed) return { error: 'アンケートの内容を入力してください' };
+  if (trimmed.length > MAX_SURVEY_LENGTH) {
+    return { error: `アンケートは${MAX_SURVEY_LENGTH}文字以内で入力してください` };
+  }
+
+  const db = adminDb();
+  const applicationRef = db.collection('applications').doc(applicationId);
+
+  try {
+    const snap = await applicationRef.get();
+    if (!snap.exists) throw new Error('応募が見つかりません');
+    const data = snap.data()!;
+
+    if (data.userId !== profile.id) throw new Error('権限がありません');
+    if (data.status !== 'completed') {
+      throw new Error('活動完了後にアンケートを入力できます');
+    }
+
+    await applicationRef.update({
+      surveyComment: trimmed,
+      surveySubmittedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'アンケートの送信に失敗しました' };
   }
 
   revalidatePath('/mypage');

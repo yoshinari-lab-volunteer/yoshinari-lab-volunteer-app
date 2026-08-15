@@ -1,7 +1,10 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { recordSitePageView } from '@/lib/firebase/tracking';
 
-export default function MainLayout({ children }: { children: React.ReactNode }) {
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  await recordSitePageView();
+
   return (
     <div className="flex min-h-dvh flex-col">
       <Header />

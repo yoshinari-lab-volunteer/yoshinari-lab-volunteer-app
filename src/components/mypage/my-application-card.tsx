@@ -6,6 +6,7 @@ import { cancelApplication, requestCompletion } from '@/lib/actions/applications
 import { Card, CardBody } from '@/components/ui/card';
 import { ApplicationStatusBadge, PointsBadge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { SurveyForm } from '@/components/mypage/survey-form';
 import { formatDate, hasVolunteerEnded } from '@/lib/utils';
 import { APPLICATION_STATUS } from '@/lib/constants';
 import type { ApplicationWithVolunteer } from '@/types/firestore';
@@ -68,6 +69,10 @@ export function MyApplicationCard({ application }: { application: ApplicationWit
           >
             {application.status === 'pending' ? '応募を取り消す' : '取消を申請する'}
           </Button>
+        )}
+
+        {application.status === 'completed' && (
+          <SurveyForm applicationId={application.id} surveyComment={application.surveyComment} />
         )}
       </CardBody>
     </Card>
