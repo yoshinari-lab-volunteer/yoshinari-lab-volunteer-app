@@ -8,6 +8,7 @@ import {
   mapSiteSettings,
   mapUserProfile,
   mapVolunteer,
+  mapVolunteerEditLink,
 } from '@/lib/firebase/converters';
 import { applicationDocId } from '@/types/firestore';
 import { DEFAULT_SITE_SETTINGS } from '@/lib/constants';
@@ -21,6 +22,7 @@ import type {
   SiteSettings,
   UserProfile,
   Volunteer,
+  VolunteerEditLink,
   VolunteerStatus,
 } from '@/types/firestore';
 
@@ -60,6 +62,23 @@ export const getVolunteer = cache(async (id: string): Promise<Volunteer | null> 
   const snap = await adminDb().collection('volunteers').doc(id).get();
   return snap.exists ? mapVolunteer(snap) : null;
 });
+
+/** 案件に発行されている団体編集リンク（未発行ならnull） */
+export async function getVolunteerEditLink(volunteerId: string): Promise<VolunteerEditLink | null> {
+  const snap = await adminDb().collection('volunteerEditLinks').doc(volunteerId).get();
+  return snap.exists ? mapVolunteerEditLink(snap) : null;
+}
+
+/** 編集リンクのトークンから案件を取得する（団体担当者向け、ログイン不要） */
+export async function getVolunteerByEditToken(token: string): Promise<Volunteer | null> {
+  const snap = await adminDb()
+    .collection('volunteerEditLinks')
+    .where('token', '==', token)
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  return getVolunteer(snap.docs[0].id);
+}
 
 /** ログインユーザー自身の、指定案件への応募状況 */
 export async function getMyApplication(

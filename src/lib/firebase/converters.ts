@@ -8,6 +8,7 @@ import type {
   SiteSettings,
   UserProfile,
   Volunteer,
+  VolunteerEditLink,
 } from '@/types/firestore';
 
 type Doc = DocumentSnapshot | QueryDocumentSnapshot;
@@ -123,6 +124,17 @@ export function mapPointTransaction(doc: Doc): PointTransaction {
     points: d.points ?? 0,
     reason: d.reason ?? '',
     adjustedBy: d.adjustedBy ?? null,
+    createdAt: toIso(d.createdAt),
+  };
+}
+
+export function mapVolunteerEditLink(doc: Doc): VolunteerEditLink {
+  const d = doc.data() ?? {};
+  return {
+    volunteerId: doc.id,
+    token: d.token ?? '',
+    email: d.email ?? '',
+    createdBy: d.createdBy ?? '',
     createdAt: toIso(d.createdAt),
   };
 }

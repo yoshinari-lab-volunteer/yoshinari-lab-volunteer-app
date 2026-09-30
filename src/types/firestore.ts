@@ -173,3 +173,16 @@ export type SiteSettings = {
 export function applicationDocId(volunteerId: string, userId: string) {
   return `${volunteerId}_${userId}`;
 }
+
+/**
+ * volunteerEditLinks/{volunteerId}（ドキュメントIDは案件IDと同じ＝1案件につき1リンク）
+ * ログイン不要で、担当団体がこのトークンを知っていれば案件の募集要項を編集できる。
+ * 管理者が案件ごとに発行し、再発行するとトークンが上書きされる（＝古いリンクは自動的に無効化）。
+ */
+export type VolunteerEditLink = {
+  volunteerId: string;
+  token: string;
+  email: string;
+  createdBy: string;
+  createdAt: string;
+};

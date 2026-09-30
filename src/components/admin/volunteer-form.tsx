@@ -25,13 +25,20 @@ export function VolunteerForm({
   volunteer,
   action,
   submitLabel,
+  hidePoints = false,
+  successMessage,
 }: {
   volunteer?: Volunteer;
   action: SubmitAction;
   submitLabel: string;
+  /** true の場合、獲得ポイント欄を非表示にする（団体担当者向け編集フォーム用） */
+  hidePoints?: boolean;
+  /** 指定すると、送信成功後にこのメッセージを表示する（管理者用フォームは遷移するため通常不要） */
+  successMessage?: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [images, setImages] = useState<ImageItem[]>(
     () => volunteer?.orgImageUrls.map((url) => ({ key: url, url, isExisting: true })) ?? [],
   );
@@ -62,6 +69,7 @@ export function VolunteerForm({
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+    setSaved(false);
     const formData = new FormData(e.currentTarget);
 
     const keptUrls = new Set(images.filter((i) => i.isExisting).map((i) => i.url));
@@ -78,12 +86,14 @@ export function VolunteerForm({
     startTransition(async () => {
       const result = await action(formData);
       if (result?.error) setError(result.error);
+      else if (successMessage) setSaved(true);
     });
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && <Alert tone="error">{error}</Alert>}
+      {saved && successMessage && <Alert tone="success">{successMessage}</Alert>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -134,17 +144,19 @@ export function VolunteerForm({
           </Field>
         </div>
 
-        <Field label="獲得ポイント" htmlFor="points" required>
-          <Input
-            id="points"
-            name="points"
-            type="number"
-            min={0}
-            step={1}
-            defaultValue={volunteer?.points ?? 0}
-            required
-          />
-        </Field>
+        {!hidePoints && (
+          <Field label="獲得ポイント" htmlFor="points" required>
+            <Input
+              id="points"
+              name="points"
+              type="number"
+              min={0}
+              step={1}
+              defaultValue={volunteer?.points ?? 0}
+              required
+            />
+          </Field>
+        )}
 
         <Field label="定員" htmlFor="maxCapacity" required>
           <Input
