@@ -54,6 +54,8 @@ export function mapVolunteer(doc: Doc): Volunteer {
     endTime: d.endTime ?? null,
     location: d.location ?? '',
     points: d.points ?? 0,
+    // このフィールド導入前に作成された案件はすべて募集案件のため true 扱い
+    acceptsApplications: d.acceptsApplications ?? true,
     maxCapacity: d.maxCapacity ?? 0,
     currentApplicants: d.currentApplicants ?? 0,
     viewCount: d.viewCount ?? 0,

@@ -33,6 +33,17 @@ export function ApplyPanel({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  // 応募者がいる案件は活動紹介に切り替えられないため、ここで応募状況の表示を考慮する必要はない
+  if (!volunteer.acceptsApplications) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm">
+        <p className="text-sm text-slate-600">
+          この活動は紹介のための掲載です。このサイトからの応募は受け付けていません。
+        </p>
+      </div>
+    );
+  }
+
   if (!isLoggedIn) {
     return (
       <div className="space-y-2 rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm">

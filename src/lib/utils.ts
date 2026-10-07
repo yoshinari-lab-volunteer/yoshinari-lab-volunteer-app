@@ -65,11 +65,13 @@ export function hasVolunteerEnded(v: { eventDate: string; endTime: string | null
 /** 応募できる状態か */
 export function canApply(v: {
   status: string;
+  acceptsApplications: boolean;
   deadline: string;
   currentApplicants: number;
   maxCapacity: number;
 }) {
   return (
+    v.acceptsApplications &&
     v.status === 'published' &&
     !isDeadlinePassed(v.deadline) &&
     v.currentApplicants < v.maxCapacity

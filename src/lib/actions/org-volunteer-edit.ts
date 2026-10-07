@@ -1,10 +1,14 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 import { adminDb } from '@/lib/firebase/admin';
-import { parseOrgVolunteerFormData, resolveImages } from '@/lib/firebase/volunteer-form-data';
-import { parseJstDatetimeLocal } from '@/lib/utils';
+import {
+  parseOrgVolunteerFormData,
+  resolveImages,
+  toDeadlineTimestamp,
+  validateCapacityChange,
+} from '@/lib/firebase/volunteer-form-data';
 
 type ActionResult = { error?: string };
 
@@ -39,12 +43,8 @@ export async function updateVolunteerByEditToken(
   const snap = await ref.get();
   if (!snap.exists) return { error: '案件が見つかりません' };
 
-  // 既に応募がある案件の定員を、現在の応募数より少なく変更できてしまうと
-  // 後続の承認処理で定員超過を招くため、ここで止める
-  const currentApplicants: number = snap.data()!.currentApplicants ?? 0;
-  if (data.maxCapacity < currentApplicants) {
-    return { error: `定員は現在の応募数（${currentApplicants}名）未満にはできません` };
-  }
+  const capacityError = validateCapacityChange(data, snap.data()!.currentApplicants ?? 0);
+  if (capacityError) return { error: capacityError };
 
   let orgImageUrls: string[];
   try {
@@ -55,7 +55,7 @@ export async function updateVolunteerByEditToken(
 
   await ref.update({
     ...data,
-    deadline: Timestamp.fromDate(parseJstDatetimeLocal(data.deadline)),
+    deadline: toDeadlineTimestamp(data.deadline),
     orgImageUrls,
     updatedAt: FieldValue.serverTimestamp(),
   });

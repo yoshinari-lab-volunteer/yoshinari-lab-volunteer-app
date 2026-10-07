@@ -2,7 +2,12 @@ import Link from 'next/link';
 import { CalendarDays, MapPin, Users } from 'lucide-react';
 import type { Volunteer } from '@/types/firestore';
 import { Card, CardBody } from '@/components/ui/card';
-import { BeginnerBadge, PointsBadge, VolunteerStatusBadge } from '@/components/ui/badge';
+import {
+  BeginnerBadge,
+  IntroductionBadge,
+  PointsBadge,
+  VolunteerStatusBadge,
+} from '@/components/ui/badge';
 import { formatDate, formatDeadline } from '@/lib/utils';
 import { optimizedImageUrl } from '@/lib/cloudinary';
 
@@ -23,9 +28,13 @@ export function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
         )}
         <CardBody className="space-y-3">
           <div className="flex flex-wrap items-center gap-1.5">
-            <VolunteerStatusBadge status={volunteer.status} />
+            {volunteer.acceptsApplications ? (
+              <VolunteerStatusBadge status={volunteer.status} />
+            ) : (
+              <IntroductionBadge />
+            )}
             {volunteer.beginnerFriendly && <BeginnerBadge />}
-            <PointsBadge points={volunteer.points} />
+            {volunteer.acceptsApplications && <PointsBadge points={volunteer.points} />}
           </div>
 
           <h3 className="text-base font-bold text-slate-900">{volunteer.title}</h3>
@@ -39,16 +48,22 @@ export function VolunteerCard({ volunteer }: { volunteer: Volunteer }) {
               <MapPin className="size-4 shrink-0 text-slate-400" aria-hidden />
               <span>{volunteer.area}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Users className="size-4 shrink-0 text-slate-400" aria-hidden />
-              <span>
-                {volunteer.currentApplicants} / {volunteer.maxCapacity} 名
-                {isFull && <span className="ml-1 font-semibold text-rose-600">満員</span>}
-              </span>
-            </div>
+            {volunteer.acceptsApplications && (
+              <div className="flex items-center gap-1.5">
+                <Users className="size-4 shrink-0 text-slate-400" aria-hidden />
+                <span>
+                  {volunteer.currentApplicants} / {volunteer.maxCapacity} 名
+                  {isFull && <span className="ml-1 font-semibold text-rose-600">満員</span>}
+                </span>
+              </div>
+            )}
           </dl>
 
-          <p className="text-xs font-medium text-slate-500">募集期限: {formatDeadline(volunteer.deadline)}</p>
+          {volunteer.acceptsApplications && (
+            <p className="text-xs font-medium text-slate-500">
+              募集期限: {formatDeadline(volunteer.deadline)}
+            </p>
+          )}
         </CardBody>
       </Card>
     </Link>

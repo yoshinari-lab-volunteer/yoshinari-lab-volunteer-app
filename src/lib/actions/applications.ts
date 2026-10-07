@@ -34,6 +34,9 @@ export async function applyToVolunteer(volunteerId: string): Promise<ActionResul
       if (!volunteerSnap.exists) throw new Error('案件が見つかりません');
       const volunteer = volunteerSnap.data()!;
 
+      if (volunteer.acceptsApplications === false) {
+        throw new Error('この活動は紹介のみの掲載のため、応募は受け付けていません');
+      }
       if (volunteer.status !== 'published') {
         throw new Error('この案件は現在応募を受け付けていません');
       }

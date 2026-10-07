@@ -1,6 +1,8 @@
 import 'server-only';
 import { z } from 'zod';
+import { Timestamp } from 'firebase-admin/firestore';
 import { uploadVolunteerImage, deleteVolunteerImage } from '@/lib/cloudinary';
+import { parseJstDatetimeLocal } from '@/lib/utils';
 
 export const MAX_IMAGES = 5;
 
@@ -14,21 +16,51 @@ const commonFields = {
   startTime: z.string().trim().max(5).nullable(),
   endTime: z.string().trim().max(5).nullable(),
   location: z.string().trim().max(200).default(''),
-  maxCapacity: z.coerce.number().int().min(1, '定員は1以上で入力してください'),
-  deadline: z.string().min(1, '募集期限を入力してください'),
   beginnerFriendly: z.boolean(),
   status: z.enum(['draft', 'published', 'closed']),
   orgName: z.string().trim().max(200).default(''),
   orgDescription: z.string().trim().max(2000).default(''),
 };
 
-const volunteerSchema = z.object({
-  ...commonFields,
+/** 応募を受け付ける（募集案件の）場合のみ必須になる項目 */
+const recruitingSchema = z.object({
+  maxCapacity: z.coerce.number().int().min(1, '定員は1以上で入力してください'),
+  deadline: z.string().min(1, '募集期限を入力してください'),
+});
+
+const pointsSchema = z.object({
   points: z.coerce.number().int().min(0, 'ポイントは0以上で入力してください'),
 });
 
-/** 団体担当者向け: 獲得ポイントを含まない項目のみ検証する（ポイント経済は管理者専用のため） */
-const orgVolunteerSchema = z.object(commonFields);
+const commonSchema = z.object(commonFields);
+
+function parseOrThrow<T extends z.ZodType>(schema: T, input: unknown): z.infer<T> {
+  const parsed = schema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? '入力内容を確認してください');
+  }
+  return parsed.data;
+}
+
+/**
+ * 「活動紹介」（acceptsApplications=false）の場合、定員・募集期限は入力欄自体が出ないため
+ * 検証せず、定員0・募集期限なしとして保存する。
+ */
+function parseRecruitingFields(formData: FormData) {
+  const acceptsApplications = formData.get('listingType') !== 'introduction';
+  if (!acceptsApplications) {
+    return { acceptsApplications, maxCapacity: 0, deadline: null as string | null };
+  }
+  const recruiting = parseOrThrow(recruitingSchema, {
+    maxCapacity: formData.get('maxCapacity'),
+    deadline: formData.get('deadline'),
+  });
+  return { acceptsApplications, ...recruiting } as {
+    acceptsApplications: boolean;
+    maxCapacity: number;
+    deadline: string | null;
+  };
+}
 
 function readCommonFields(formData: FormData) {
   const emptyToNull = (v: FormDataEntryValue | null) => (v && String(v).trim() ? String(v) : null);
@@ -42,8 +74,6 @@ function readCommonFields(formData: FormData) {
     startTime: emptyToNull(formData.get('startTime')),
     endTime: emptyToNull(formData.get('endTime')),
     location: formData.get('location') ?? '',
-    maxCapacity: formData.get('maxCapacity'),
-    deadline: formData.get('deadline'),
     beginnerFriendly: formData.get('beginnerFriendly') === 'on',
     status: formData.get('status'),
     orgName: formData.get('orgName') ?? '',
@@ -52,22 +82,41 @@ function readCommonFields(formData: FormData) {
 }
 
 export function parseVolunteerFormData(formData: FormData) {
-  const parsed = volunteerSchema.safeParse({
-    ...readCommonFields(formData),
-    points: formData.get('points'),
-  });
-  if (!parsed.success) {
-    throw new Error(parsed.error.issues[0]?.message ?? '入力内容を確認してください');
-  }
-  return parsed.data;
+  const common = parseOrThrow(commonSchema, readCommonFields(formData));
+  const recruiting = parseRecruitingFields(formData);
+  const { points } = recruiting.acceptsApplications
+    ? parseOrThrow(pointsSchema, { points: formData.get('points') })
+    : { points: 0 };
+  return { ...common, ...recruiting, points };
 }
 
+/** 団体担当者向け: 獲得ポイントは含めない（ポイント経済は管理者専用のため） */
 export function parseOrgVolunteerFormData(formData: FormData) {
-  const parsed = orgVolunteerSchema.safeParse(readCommonFields(formData));
-  if (!parsed.success) {
-    throw new Error(parsed.error.issues[0]?.message ?? '入力内容を確認してください');
+  const common = parseOrThrow(commonSchema, readCommonFields(formData));
+  return { ...common, ...parseRecruitingFields(formData) };
+}
+
+export function toDeadlineTimestamp(deadline: string | null): Timestamp | null {
+  return deadline ? Timestamp.fromDate(parseJstDatetimeLocal(deadline)) : null;
+}
+
+/**
+ * 既存案件の更新時に、定員・掲載形式の変更が既存の応募と矛盾しないか検証する。
+ * 問題があればエラーメッセージを返す。
+ */
+export function validateCapacityChange(
+  data: { acceptsApplications: boolean; maxCapacity: number },
+  currentApplicants: number,
+): string | null {
+  // 応募者がいるまま活動紹介に切り替えると、応募者の承認・完了処理の扱いが曖昧になるため止める
+  if (!data.acceptsApplications && currentApplicants > 0) {
+    return `応募者（${currentApplicants}名）がいる案件は活動紹介に切り替えられません`;
   }
-  return parsed.data;
+  // 現在の応募数より少ない定員にすると、後続の承認処理で定員超過を招くため止める
+  if (data.acceptsApplications && data.maxCapacity < currentApplicants) {
+    return `定員は現在の応募数（${currentApplicants}名）未満にはできません`;
+  }
+  return null;
 }
 
 /**

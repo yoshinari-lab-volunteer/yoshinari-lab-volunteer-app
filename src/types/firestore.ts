@@ -53,6 +53,11 @@ export type Volunteer = {
   endTime: string | null;
   location: string;
   points: number;
+  /**
+   * false の場合は「活動紹介」として掲載し、応募を受け付けない
+   * （参加ボタン・定員・募集期限・獲得ポイントを表示しない）
+   */
+  acceptsApplications: boolean;
   maxCapacity: number;
   currentApplicants: number;
   /** 案件詳細ページの累計閲覧数（管理者のみ確認可能） */

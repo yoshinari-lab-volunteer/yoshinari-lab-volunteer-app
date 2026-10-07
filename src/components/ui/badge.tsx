@@ -37,6 +37,10 @@ export function PointsBadge({ points }: { points: number }) {
   );
 }
 
+export function IntroductionBadge() {
+  return <Badge className="bg-indigo-100 text-indigo-800 ring-indigo-200">活動紹介</Badge>;
+}
+
 export function BeginnerBadge() {
   return <Badge className="bg-brand-100 text-brand-800 ring-brand-200">初心者OK</Badge>;
 }

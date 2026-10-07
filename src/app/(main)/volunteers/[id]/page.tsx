@@ -5,7 +5,12 @@ import { getVolunteer, getMyApplication } from '@/lib/firebase/queries';
 import { recordVolunteerView } from '@/lib/firebase/tracking';
 import { getCurrentProfile } from '@/lib/auth';
 import { Card, CardBody } from '@/components/ui/card';
-import { BeginnerBadge, PointsBadge, VolunteerStatusBadge } from '@/components/ui/badge';
+import {
+  BeginnerBadge,
+  IntroductionBadge,
+  PointsBadge,
+  VolunteerStatusBadge,
+} from '@/components/ui/badge';
 import { formatDate, formatDeadline } from '@/lib/utils';
 import { optimizedImageUrl } from '@/lib/cloudinary';
 import { VolunteerImageGallery } from '@/components/volunteers/image-gallery';
@@ -41,9 +46,13 @@ export default async function VolunteerDetailPage({ params }: Props) {
 
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-1.5">
-            <VolunteerStatusBadge status={volunteer.status} />
+            {volunteer.acceptsApplications ? (
+              <VolunteerStatusBadge status={volunteer.status} />
+            ) : (
+              <IntroductionBadge />
+            )}
             {volunteer.beginnerFriendly && <BeginnerBadge />}
-            <PointsBadge points={volunteer.points} />
+            {volunteer.acceptsApplications && <PointsBadge points={volunteer.points} />}
           </div>
           <h1 className="text-2xl font-bold text-slate-900">{volunteer.title}</h1>
         </div>
@@ -62,12 +71,16 @@ export default async function VolunteerDetailPage({ params }: Props) {
               {volunteer.area}
               {volunteer.location && ` / ${volunteer.location}`}
             </InfoRow>
-            <InfoRow icon={Users} label="定員">
-              {volunteer.currentApplicants} / {volunteer.maxCapacity} 名
-            </InfoRow>
-            <p className="text-xs font-medium text-slate-500">
-              募集期限: {formatDeadline(volunteer.deadline)}
-            </p>
+            {volunteer.acceptsApplications && (
+              <>
+                <InfoRow icon={Users} label="定員">
+                  {volunteer.currentApplicants} / {volunteer.maxCapacity} 名
+                </InfoRow>
+                <p className="text-xs font-medium text-slate-500">
+                  募集期限: {formatDeadline(volunteer.deadline)}
+                </p>
+              </>
+            )}
           </CardBody>
         </Card>
 

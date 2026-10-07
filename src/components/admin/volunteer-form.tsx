@@ -39,6 +39,11 @@ export function VolunteerForm({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [acceptsApplications, setAcceptsApplications] = useState(
+    volunteer?.acceptsApplications ?? true,
+  );
+  // 活動紹介として保存された案件は定員0・募集期限なしのため、募集案件に戻す際は初期値を空にする
+  const wasRecruiting = volunteer?.acceptsApplications ?? false;
   const [images, setImages] = useState<ImageItem[]>(
     () => volunteer?.orgImageUrls.map((url) => ({ key: url, url, isExisting: true })) ?? [],
   );
@@ -102,6 +107,25 @@ export function VolunteerForm({
           </Field>
         </div>
 
+        <div className="sm:col-span-2">
+          <Field
+            label="掲載形式"
+            htmlFor="listingType"
+            required
+            hint="「活動紹介」にすると参加ボタン・定員・募集期限・獲得ポイントを表示せず、活動の紹介としてのみ掲載します。"
+          >
+            <Select
+              id="listingType"
+              name="listingType"
+              value={acceptsApplications ? 'recruiting' : 'introduction'}
+              onChange={(e) => setAcceptsApplications(e.target.value === 'recruiting')}
+            >
+              <option value="recruiting">参加者を募集する</option>
+              <option value="introduction">活動紹介として掲載する（応募を受け付けない）</option>
+            </Select>
+          </Field>
+        </div>
+
         <Field label="分野" htmlFor="category" required>
           <Input id="category" name="category" defaultValue={volunteer?.category} required maxLength={50} />
         </Field>
@@ -144,41 +168,45 @@ export function VolunteerForm({
           </Field>
         </div>
 
-        {!hidePoints && (
-          <Field label="獲得ポイント" htmlFor="points" required>
-            <Input
-              id="points"
-              name="points"
-              type="number"
-              min={0}
-              step={1}
-              defaultValue={volunteer?.points ?? 0}
-              required
-            />
-          </Field>
+        {acceptsApplications && (
+          <>
+            {!hidePoints && (
+              <Field label="獲得ポイント" htmlFor="points" required>
+                <Input
+                  id="points"
+                  name="points"
+                  type="number"
+                  min={0}
+                  step={1}
+                  defaultValue={volunteer?.points ?? 0}
+                  required
+                />
+              </Field>
+            )}
+
+            <Field label="定員" htmlFor="maxCapacity" required>
+              <Input
+                id="maxCapacity"
+                name="maxCapacity"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={wasRecruiting ? volunteer?.maxCapacity : 10}
+                required
+              />
+            </Field>
+
+            <Field label="募集期限" htmlFor="deadline" required>
+              <Input
+                id="deadline"
+                name="deadline"
+                type="datetime-local"
+                defaultValue={wasRecruiting && volunteer ? toDatetimeLocalValue(volunteer.deadline) : ''}
+                required
+              />
+            </Field>
+          </>
         )}
-
-        <Field label="定員" htmlFor="maxCapacity" required>
-          <Input
-            id="maxCapacity"
-            name="maxCapacity"
-            type="number"
-            min={1}
-            step={1}
-            defaultValue={volunteer?.maxCapacity ?? 10}
-            required
-          />
-        </Field>
-
-        <Field label="募集期限" htmlFor="deadline" required>
-          <Input
-            id="deadline"
-            name="deadline"
-            type="datetime-local"
-            defaultValue={volunteer ? toDatetimeLocalValue(volunteer.deadline) : ''}
-            required
-          />
-        </Field>
 
         <Field label="公開状態" htmlFor="status" required>
           <Select id="status" name="status" defaultValue={volunteer?.status ?? 'draft'} required>

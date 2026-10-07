@@ -3,7 +3,12 @@ import Link from 'next/link';
 import { Users } from 'lucide-react';
 import { listAllVolunteersForAdmin } from '@/lib/firebase/queries';
 import { Card, CardBody } from '@/components/ui/card';
-import { BeginnerBadge, PointsBadge, VolunteerStatusBadge } from '@/components/ui/badge';
+import {
+  BeginnerBadge,
+  IntroductionBadge,
+  PointsBadge,
+  VolunteerStatusBadge,
+} from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatDate, cn } from '@/lib/utils';
 import { VOLUNTEER_STATUS } from '@/lib/constants';
@@ -87,8 +92,9 @@ export default async function AdminVolunteersPage({
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-1.5">
                     <VolunteerStatusBadge status={volunteer.status} />
+                    {!volunteer.acceptsApplications && <IntroductionBadge />}
                     {volunteer.beginnerFriendly && <BeginnerBadge />}
-                    <PointsBadge points={volunteer.points} />
+                    {volunteer.acceptsApplications && <PointsBadge points={volunteer.points} />}
                   </div>
                   <Link
                     href={`/admin/volunteers/${volunteer.id}/edit`}
@@ -97,8 +103,9 @@ export default async function AdminVolunteersPage({
                     {volunteer.title}
                   </Link>
                   <p className="text-sm text-slate-500">
-                    {formatDate(volunteer.eventDate)} ・ {volunteer.area} ・{' '}
-                    {volunteer.currentApplicants} / {volunteer.maxCapacity} 名
+                    {formatDate(volunteer.eventDate)} ・ {volunteer.area}
+                    {volunteer.acceptsApplications &&
+                      ` ・ ${volunteer.currentApplicants} / ${volunteer.maxCapacity} 名`}
                   </p>
                 </div>
 
