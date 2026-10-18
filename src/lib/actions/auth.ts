@@ -3,10 +3,10 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
 import { adminAuth, adminDb } from '@/lib/firebase/admin';
-import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_EXPIRES_IN_MS } from '@/lib/firebase/session';
+import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_COOKIE_OPTIONS } from '@/lib/firebase/session';
+import { newProfileSchema } from '@/lib/profile-schema';
 
 /**
  * クライアントで signInWithEmailAndPassword / createUserWithEmailAndPassword に
@@ -15,23 +15,8 @@ import { createSessionCookie, SESSION_COOKIE_NAME, SESSION_EXPIRES_IN_MS } from 
 export async function establishSession(idToken: string): Promise<void> {
   const sessionCookie = await createSessionCookie(idToken);
   const store = await cookies();
-  store.set(SESSION_COOKIE_NAME, sessionCookie, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: SESSION_EXPIRES_IN_MS / 1000,
-    path: '/',
-  });
+  store.set(SESSION_COOKIE_NAME, sessionCookie, SESSION_COOKIE_OPTIONS);
 }
-
-const newProfileSchema = z.object({
-  fullName: z.string().trim().min(1, '氏名を入力してください').max(100),
-  phone: z
-    .string()
-    .trim()
-    .min(1, '電話番号を入力してください')
-    .regex(/^[0-9-]+$/, '電話番号はハイフンを含む数字で入力してください'),
-});
 
 /**
  * 新規登録直後に呼び出し、Firestore の users/{uid} プロフィールを作成してからセッションを確立する。

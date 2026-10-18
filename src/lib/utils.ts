@@ -7,6 +7,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** LINEで登録した会員はメールアドレスを持たないため、管理画面では空欄の代わりに理由を表示する */
+export function displayEmail(email: string) {
+  return email || 'メール未登録（LINEで登録）';
+}
+
 /** '2026-08-14' → '2026年8月14日(金)' */
 export function formatDate(value: string | Date) {
   return format(new Date(value), 'yyyy年M月d日(E)', { locale: ja });

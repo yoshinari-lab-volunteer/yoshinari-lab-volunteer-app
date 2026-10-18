@@ -5,7 +5,7 @@ import { Card, CardBody } from '@/components/ui/card';
 import { ApplicationStatusBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ApplicantActions } from '@/components/admin/applicant-actions';
-import { formatDate, formatDateTime, cn } from '@/lib/utils';
+import { displayEmail, formatDate, formatDateTime, cn } from '@/lib/utils';
 import { APPLICATION_STATUS } from '@/lib/constants';
 import type { ApplicationStatus } from '@/types/firestore';
 
@@ -80,7 +80,7 @@ export default async function AdminApplicationsPage({
                     {application.volunteer.title}
                   </Link>
                   <p className="text-sm text-slate-600">{formatDate(application.volunteer.eventDate)}</p>
-                  <p className="text-sm text-slate-600">{application.profile.email}</p>
+                  <p className="text-sm text-slate-600">{displayEmail(application.profile.email)}</p>
                   <p className="text-sm text-slate-600">{application.profile.phone}</p>
                   <p className="text-xs text-slate-400">
                     応募日時: {formatDateTime(application.appliedAt)}

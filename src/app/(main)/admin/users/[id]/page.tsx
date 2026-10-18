@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge, PointsBadge } from '@/components/ui/badge';
 import { Alert } from '@/components/ui/alert';
+import { displayEmail } from '@/lib/utils';
 import { PointsAdjustmentForm } from '@/components/admin/points-adjustment-form';
 import { ActivityLogList } from '@/components/admin/activity-log-list';
 import { UserActiveToggle } from '@/components/admin/user-active-toggle';
@@ -40,7 +41,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             <dl className="space-y-1 text-sm text-slate-600">
               <div className="flex justify-between gap-2">
                 <dt className="text-slate-500">メール</dt>
-                <dd>{user.email}</dd>
+                <dd>{displayEmail(user.email)}</dd>
               </div>
               <div className="flex justify-between gap-2">
                 <dt className="text-slate-500">電話番号</dt>

@@ -32,15 +32,20 @@ npm install
 
 **[docs/CLOUDINARY_SETUP.md](docs/CLOUDINARY_SETUP.md)** の手順に沿って、Cloudinary アカウントを作成してください。
 
-### 4. 環境変数の設定
+### 4. LINEログインのセットアップ（任意）
+
+LINEアカウントでの登録・ログインを使う場合は、**[docs/LINE_SETUP.md](docs/LINE_SETUP.md)** の手順に沿って LINE ログインチャネルを作成してください。
+`LINE_CHANNEL_ID` / `LINE_CHANNEL_SECRET` が未設定の間は、LINE関連のボタンは表示されません。
+
+### 5. 環境変数の設定
 
 ```bash
 cp .env.example .env.local
 ```
 
-`.env.local` に Firebase・Cloudinary・Resend の値を入力してください（各項目の取得方法は上記のドキュメントを参照）。
+`.env.local` に Firebase・Cloudinary・Resend（・LINE）の値を入力してください（各項目の取得方法は上記のドキュメントを参照）。
 
-### 5. 開発サーバーの起動
+### 6. 開発サーバーの起動
 
 ```bash
 npm run dev
@@ -68,6 +73,7 @@ src/
 ├ lib/
 │  ├ firebase/          … Firebase クライアント（ブラウザ／管理者用）・セッション・データ変換・読み取りクエリ
 │  ├ actions/           … Server Actions（認証・応募・案件管理・応募者承認・プロフィール）
+│  ├ line/              … LINEログイン（OAuth・LINEアカウントと会員の紐付け・署名つきCookie）
 │  ├ cloudinary.ts      … 画像アップロード・削除・配信URL最適化（サーバー専用）
 │  ├ auth.ts            … ログイン必須ページ・管理者専用ページのガード
 │  ├ constants.ts        … 分野・地域・ステータスなどの定義
@@ -85,6 +91,7 @@ docs/                    … セットアップ手順などのドキュメント
 
 ### 一般ユーザー
 - メールアドレス認証によるユーザー登録・ログイン
+- LINEアカウントでの登録・ログイン、メール会員とのアカウント連携（マイページ）
 - 地域・日付・分野によるボランティア案件の検索
 - 応募 → 参加承認 → 活動完了報告 → 完了承認、という 4 段階のステータス管理
 - マイページでの登録情報（氏名・電話番号）編集、累積ポイントの確認

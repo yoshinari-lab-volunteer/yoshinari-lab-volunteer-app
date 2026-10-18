@@ -36,6 +36,8 @@ export type UserProfile = {
   role: UserRole;
   points: number;
   isActive: boolean;
+  /** LINEアカウントと連携済みか（LINEのユーザーIDそのものはクライアントに渡さない） */
+  lineLinked: boolean;
   createdAt: string;
   updatedAt: string;
 };

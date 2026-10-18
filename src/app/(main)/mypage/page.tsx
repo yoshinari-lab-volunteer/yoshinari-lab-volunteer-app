@@ -2,15 +2,21 @@ import type { Metadata } from 'next';
 import { Sparkles } from 'lucide-react';
 import { requireProfile } from '@/lib/auth';
 import { listMyApplications } from '@/lib/firebase/queries';
+import { isLineLoginEnabled } from '@/lib/line/config';
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { ProfileForm } from '@/components/mypage/profile-form';
 import { MyApplicationCard } from '@/components/mypage/my-application-card';
+import { LineLinkCard } from '@/components/mypage/line-link-card';
 
 export const metadata: Metadata = { title: 'マイページ' };
 
-export default async function MyPage() {
-  const profile = await requireProfile();
+export default async function MyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ line?: string }>;
+}) {
+  const [{ line }, profile] = await Promise.all([searchParams, requireProfile()]);
   const applications = await listMyApplications(profile.id);
 
   return (
@@ -35,6 +41,10 @@ export default async function MyPage() {
             <ProfileForm profile={profile} />
           </CardBody>
         </Card>
+
+        {isLineLoginEnabled() && (
+          <LineLinkCard linked={profile.lineLinked} canUnlink={Boolean(profile.email)} status={line} />
+        )}
       </div>
 
       <div className="space-y-4">

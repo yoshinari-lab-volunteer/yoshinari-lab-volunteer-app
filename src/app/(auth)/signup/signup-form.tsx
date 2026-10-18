@@ -14,6 +14,7 @@ import { Card, CardBody, CardFooter, CardHeader, CardTitle } from '@/components/
 import { Field, Input } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
+import { LineButton, OrDivider } from '@/components/auth/line-button';
 
 const schema = z.object({
   fullName: z.string().trim().min(1, '氏名を入力してください').max(100),
@@ -27,7 +28,7 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function SignupForm() {
+export function SignupForm({ lineEnabled }: { lineEnabled: boolean }) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -110,6 +111,12 @@ export function SignupForm() {
           <Button type="submit" className="w-full" loading={isSubmitting}>
             登録する
           </Button>
+          {lineEnabled && (
+            <>
+              <OrDivider />
+              <LineButton mode="login" label="LINEで新規登録" />
+            </>
+          )}
           <p className="text-center text-sm text-slate-600">
             すでにアカウントをお持ちの方は{' '}
             <Link href="/login" className="font-semibold text-brand-700 hover:underline">

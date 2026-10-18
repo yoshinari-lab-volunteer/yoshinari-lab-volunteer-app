@@ -5,6 +5,7 @@ import { listAllUsers } from '@/lib/firebase/queries';
 import { Card, CardBody } from '@/components/ui/card';
 import { Badge, PointsBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
+import { displayEmail } from '@/lib/utils';
 
 export const metadata: Metadata = { title: 'ユーザー管理' };
 
@@ -39,7 +40,7 @@ export default async function AdminUsersPage() {
                         <Badge className="bg-rose-100 text-rose-800 ring-rose-200">無効化済み</Badge>
                       )}
                     </div>
-                    <p className="text-sm text-slate-500">{user.email}</p>
+                    <p className="text-sm text-slate-500">{displayEmail(user.email)}</p>
                   </div>
                   <PointsBadge points={user.points} />
                 </CardBody>

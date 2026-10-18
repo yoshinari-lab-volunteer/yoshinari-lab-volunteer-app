@@ -14,6 +14,15 @@ import { Card, CardBody, CardFooter, CardHeader, CardTitle } from '@/components/
 import { Field, Input } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
+import { LineButton, OrDivider } from '@/components/auth/line-button';
+
+const ERROR_MESSAGES: Record<string, string> = {
+  deactivated: 'このアカウントは現在ご利用いただけません。管理者へお問い合わせください。',
+  line_failed: 'LINEでのログインに失敗しました。時間をおいてもう一度お試しください。',
+  line_cancelled: 'LINEでのログインがキャンセルされました。',
+  line_expired: 'LINE認証の有効期限が切れました。もう一度LINEでログインしてください。',
+  line_unavailable: '現在LINEでのログインはご利用いただけません。',
+};
 
 const schema = z.object({
   email: z.string().min(1, 'メールアドレスを入力してください').email('メールアドレスの形式が正しくありません'),
@@ -21,12 +30,18 @@ const schema = z.object({
 });
 type FormValues = z.infer<typeof schema>;
 
-export function LoginForm({ redirectTo, errorParam }: { redirectTo?: string; errorParam?: string }) {
+export function LoginForm({
+  redirectTo,
+  errorParam,
+  lineEnabled,
+}: {
+  redirectTo?: string;
+  errorParam?: string;
+  lineEnabled: boolean;
+}) {
   const router = useRouter();
   const [formError, setFormError] = useState<string | null>(
-    errorParam === 'deactivated'
-      ? 'このアカウントは現在ご利用いただけません。管理者へお問い合わせください。'
-      : null,
+    (errorParam && ERROR_MESSAGES[errorParam]) || null,
   );
 
   const {
@@ -87,6 +102,12 @@ export function LoginForm({ redirectTo, errorParam }: { redirectTo?: string; err
           <Button type="submit" className="w-full" loading={isSubmitting}>
             ログイン
           </Button>
+          {lineEnabled && (
+            <>
+              <OrDivider />
+              <LineButton mode="login" label="LINEでログイン" redirectTo={redirectTo} />
+            </>
+          )}
           <p className="text-center text-sm text-slate-600">
             アカウントをお持ちでない方は{' '}
             <Link href="/signup" className="font-semibold text-brand-700 hover:underline">

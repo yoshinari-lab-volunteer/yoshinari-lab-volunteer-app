@@ -30,7 +30,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
       {saved && <Alert tone="success">登録情報を更新しました</Alert>}
 
       <Field label="メールアドレス" htmlFor="email">
-        <Input id="email" value={profile.email} disabled />
+        <Input id="email" value={profile.email} placeholder="未登録（LINEで登録）" disabled />
       </Field>
 
       <Field label="氏名" htmlFor="fullName" required>

@@ -36,6 +36,7 @@ export function mapUserProfile(doc: Doc): UserProfile {
     role: d.role === 'admin' ? 'admin' : 'user',
     points: d.points ?? 0,
     isActive: d.isActive ?? true,
+    lineLinked: Boolean(d.lineUserId),
     createdAt: toIso(d.createdAt),
     updatedAt: toIso(d.updatedAt),
   };

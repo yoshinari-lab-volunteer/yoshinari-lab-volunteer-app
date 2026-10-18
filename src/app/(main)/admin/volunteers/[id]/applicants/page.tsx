@@ -4,7 +4,7 @@ import { getVolunteer, listApplicationsWithProfiles } from '@/lib/firebase/queri
 import { Card, CardBody } from '@/components/ui/card';
 import { ApplicationStatusBadge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
-import { formatDateTime } from '@/lib/utils';
+import { displayEmail, formatDateTime } from '@/lib/utils';
 import { ApplicantActions } from '@/components/admin/applicant-actions';
 import { CsvDownloadButton } from '@/components/admin/csv-download-button';
 
@@ -44,7 +44,7 @@ export default async function VolunteerApplicantsPage({
                     <p className="font-bold text-slate-900">{application.profile.fullName}</p>
                     <ApplicationStatusBadge status={application.status} />
                   </div>
-                  <p className="text-sm text-slate-600">{application.profile.email}</p>
+                  <p className="text-sm text-slate-600">{displayEmail(application.profile.email)}</p>
                   <p className="text-sm text-slate-600">{application.profile.phone}</p>
                   <p className="text-xs text-slate-400">
                     応募日時: {formatDateTime(application.appliedAt)}

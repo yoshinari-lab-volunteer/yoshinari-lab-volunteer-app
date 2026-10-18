@@ -3,7 +3,11 @@ import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { adminDb } from '@/lib/firebase/admin';
-import { SESSION_COOKIE_NAME, verifySessionCookie } from '@/lib/firebase/session';
+import {
+  LINE_LOGIN_CLAIM,
+  SESSION_COOKIE_NAME,
+  verifySessionCookie,
+} from '@/lib/firebase/session';
 import { mapUserProfile } from '@/lib/firebase/converters';
 import type { UserProfile } from '@/types/firestore';
 
@@ -26,7 +30,9 @@ const getCurrentSession = cache(async (): Promise<Session | null> => {
   const snap = await adminDb().collection('users').doc(decoded.uid).get();
   if (!snap.exists) return null;
 
-  return { profile: mapUserProfile(snap), emailVerified: Boolean(decoded.email_verified) };
+  // LINEログインのユーザーはメールアドレスを持たないため、LINEでの本人確認をもって確認済みとみなす
+  const verified = Boolean(decoded.email_verified) || decoded[LINE_LOGIN_CLAIM] === true;
+  return { profile: mapUserProfile(snap), emailVerified: verified };
 });
 
 /** ログインしていなければ null */

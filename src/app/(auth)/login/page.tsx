@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getCurrentProfile } from '@/lib/auth';
+import { isLineLoginEnabled } from '@/lib/line/config';
 import { LoginForm } from './login-form';
 
 export default async function LoginPage({
@@ -11,5 +12,5 @@ export default async function LoginPage({
   if (profile?.isActive) redirect('/mypage');
 
   const { redirectTo, error } = await searchParams;
-  return <LoginForm redirectTo={redirectTo} errorParam={error} />;
+  return <LoginForm redirectTo={redirectTo} errorParam={error} lineEnabled={isLineLoginEnabled()} />;
 }
